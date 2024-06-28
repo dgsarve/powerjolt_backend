@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jolt-transformer
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: jolt-transformer
+  template:
+    metadata:
+      labels:
+        app: jolt-transformer
+    spec:
+      containers:
+        - name: jolt-transformer
+          image: your-docker-repo/jolt-transformer:latest
+          ports:
+            - containerPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: jolt-transformer
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 80
+      targetPort: 8080
+  selector:
+    app: jolt-transformer
