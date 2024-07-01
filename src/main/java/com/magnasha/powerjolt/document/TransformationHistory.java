@@ -3,13 +3,13 @@ package com.magnasha.powerjolt.document;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.relational.core.mapping.Table;
 
 import java.time.LocalDateTime;
 
 @Data
 @NoArgsConstructor
-@Document
+@Table("TransformationHistory")
 public class TransformationHistory {
     @Id
     private String id;

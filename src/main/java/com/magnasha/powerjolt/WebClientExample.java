@@ -36,7 +36,7 @@ public class WebClientExample {
         response.subscribe(
                 responseBody -> System.out.println("Response Body: " + responseBody),
                 error -> System.err.println("Error: " + error.getMessage()),
-                () -> System.out.println("Request completed successfully")
+                () -> System.out.println("Request completed successfully"+requestBody)
         );
 
         // Block until the request completes (for demonstration purposes only, not recommended in production)

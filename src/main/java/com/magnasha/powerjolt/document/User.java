@@ -3,11 +3,11 @@ package com.magnasha.powerjolt.document;
 import org.springframework.data.annotation.Id;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.relational.core.mapping.Table;
 
 @Data
 @NoArgsConstructor
-@Document
+@Table("User")
 public class User {
     @Id
     private String id;

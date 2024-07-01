@@ -47,7 +47,6 @@ public class JoltTransformerController {
 
     @PostMapping("/transform")
     public Mono<ResponseEntity<String>> transformJson(@RequestBody TransformRequest request, Principal principal) throws Exception {
-
         String transformedJson = transformService.transform(request.getInputJson(), request.getSpecJson());
         String userId = ((OAuth2AuthenticationToken) principal).getPrincipal().getAttribute("id");
         TransformationHistory history = new TransformationHistory();
