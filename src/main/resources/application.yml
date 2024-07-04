@@ -1,0 +1,38 @@
+spring:
+  application:
+    name: powerjolt
+  r2dbc:
+    url: r2dbc:mysql://127.0.0.1:3306/mydatabase
+    username: myuser
+    password: secret
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+           
+            scope: openid,profile,email
+      resourceserver:
+        jwt:
+          issuer-uri: https://accounts.google.com
+          jwk-set-uri: https://www.googleapis.com/oauth2/v3/certs
+
+
+openai:
+  model: gpt-3.5-turbo
+  api:
+    url: https://api.openai.com/v1/chat/completions
+    key: s
+
+internal:
+  api-key: testapikey
+
+logging:
+  level:
+    root: DEBUG
+    org:
+      springframework:
+        data:
+          repository: DEBUG
+        r2dbc:
+          core: DEBUG
