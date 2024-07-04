@@ -1,102 +1,35 @@
 package com.magnasha.powerjolt.config;
 
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.annotation.Order;
-import org.springframework.security.authentication.AuthenticationProvider;
-import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+import org.springframework.security.core.session.SessionRegistry;
+import org.springframework.security.core.session.SessionRegistryImpl;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.access.channel.ChannelProcessingFilter;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
-import org.springframework.web.servlet.config.annotation.CorsRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-@EnableWebSecurity
+
 @Configuration
-public class SpringSecurityConfig {
+public class SpringSecurityConfig
+{
 
-    @Autowired
-    public APIAuthenticationErrEntrypoint apiAuthenticationErrEntrypoint;
+	@Bean
+	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception
+	{
+		http.authorizeRequests(
+						authorizeRequests -> authorizeRequests.requestMatchers("/", "/home", "/api/login", "/oauth2/**","/api/transform").permitAll()
+								.anyRequest().authenticated()).oauth2Login(
+						oauth2Login -> oauth2Login.defaultSuccessUrl("/api/login/success", true)
+															.failureUrl("/api/login/failure"))
+				.logout(logout -> logout.logoutSuccessUrl("/").permitAll());
+		http.csrf(csrf -> csrf.disable());
 
-    @Value("${internal.api-key}")
-    private String internalApiKey;
+		return http.build();
+	}
 
-    @Bean
-    @Order(1)
-    public SecurityFilterChain filterChainPrivate(HttpSecurity http) throws Exception {
-        http
-            .securityMatcher("/api/**")
-            .addFilterBefore(new InternalApiKeyAuthenticationFilter(internalApiKey), ChannelProcessingFilter.class)
-            .exceptionHandling((auth) -> {
-                auth.authenticationEntryPoint(apiAuthenticationErrEntrypoint);
-            })
-            .cors(AbstractHttpConfigurer::disable)
-            .csrf(AbstractHttpConfigurer::disable);
-
-        return http.build();
-    }
-
-    @Bean
-    @Order(2)
-    public SecurityFilterChain filterChainWebAppication(HttpSecurity http) throws Exception {
-        http.authorizeHttpRequests(authz -> authz
-                .requestMatchers("/login").permitAll()
-                .requestMatchers("/**").authenticated()
-                .anyRequest().authenticated()
-        );
-
-        http.formLogin(authz -> authz
-                .loginPage("/login").permitAll()
-                .loginProcessingUrl("/login")
-        );
-
-        http.logout(authz -> authz
-                .deleteCookies("JSESSIONID")
-                .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
-        );
-
-        http.csrf(AbstractHttpConfigurer::disable);
-
-        return http.build();
-    }
-
-    @Bean
-    public AuthenticationProvider authenticationProvider() {
-        DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
-        authenticationProvider.setUserDetailsService(userDetailsService());
-        return authenticationProvider;
-    }
-
-    @Bean
-    public InMemoryUserDetailsManager userDetailsService() {
-        UserDetails user = User.withDefaultPasswordEncoder()
-                .username("user")
-                .password("password")
-                .roles("USER")
-                .build();
-        return new InMemoryUserDetailsManager(user);
-    }
-
-    @Bean
-    public WebMvcConfigurer corsConfigurer() {
-        return new WebMvcConfigurer() {
-            @Override
-            public void addCorsMappings(CorsRegistry registry) {
-                registry.addMapping("/**")
-                        .allowedOrigins("http://localhost:3000") // Allow requests from localhost:3000
-                        .allowedMethods("GET", "POST", "PUT", "DELETE")
-                        .allowedHeaders("*")
-                        .allowCredentials(true);
-            }
-        };
-    }
+	@Bean
+	public SessionRegistry sessionRegistry()
+	{
+		return new SessionRegistryImpl();
+	}
 }

@@ -9,13 +9,7 @@ spring:
     oauth2:
       client:
         registration:
-          google:
-           
-            scope: openid,profile,email
-      resourceserver:
-        jwt:
-          issuer-uri: https://accounts.google.com
-          jwk-set-uri: https://www.googleapis.com/oauth2/v3/certs
+
 
 
 openai:

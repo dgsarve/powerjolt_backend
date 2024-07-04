@@ -13,5 +13,7 @@ public class User {
     private String id;
     private String email;
     private String name;
+	 private String picture;
+	 private boolean subscribed;
 
 }
