@@ -1,7 +1,6 @@
 package com.magnasha.powerjolt.service;
 
 import com.bazaarvoice.jolt.Chainr;
-
 import com.bazaarvoice.jolt.JsonUtils;
 import org.springframework.stereotype.Service;
 

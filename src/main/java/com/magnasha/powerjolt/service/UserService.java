@@ -1,30 +1,38 @@
 package com.magnasha.powerjolt.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.oauth2.core.oidc.user.OidcUser;
-import org.springframework.security.oauth2.core.user.OAuth2User;
-import org.springframework.stereotype.Service;
-
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import com.magnasha.powerjolt.document.User;
 import com.magnasha.powerjolt.repository.UserRepository;
-
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
 
 @Service
-public class UserService
-{
+public class UserService {
 
-	@Autowired
-	private UserRepository userRepository;
+    @Autowired
+    private UserRepository userRepository;
 
-	public Mono<User> findOrCreateUser( OAuth2User principal)
-	{
-		User user = new User();
-		user.setEmail(principal.getAttribute("email"));
-		user.setName(principal.getName());
-		return userRepository.findByEmail(principal.getAttribute("email")).switchIfEmpty(userRepository.save(user));
-	}
+    public Mono<User> findOrCreateUser(GoogleIdToken.Payload payload) {
+        User user = new User();
+        user.setEmail(payload.getEmail());
+        user.setName(String.valueOf(payload.get("name")));
+        user.setPicture(String.valueOf(payload.get("picture")));
+        return userRepository.findByEmail(user.getEmail()).switchIfEmpty(userRepository.save(user));
+    }
+
+    public Mono<User> findOrCreateUser(String email, String name) {
+        User user = new User();
+        user.setEmail(email);
+        user.setName(name);
+        return userRepository.findByEmail(email).switchIfEmpty(userRepository.save(user));
+    }
+
+    public Mono<User> findByUserName(String username) {
+        return userRepository.findByEmail(username);
+    }
+
+
 }
 

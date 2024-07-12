@@ -1,11 +1,5 @@
 package com.magnasha.powerjolt.service;
 
-import com.azure.ai.openai.OpenAIClient;
-import com.azure.ai.openai.OpenAIClientBuilder;
-import com.azure.ai.openai.models.Choice;
-import com.azure.ai.openai.models.Completions;
-import com.azure.ai.openai.models.CompletionsOptions;
-import com.azure.core.credential.AzureKeyCredential;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Value;
@@ -14,9 +8,6 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @Service
