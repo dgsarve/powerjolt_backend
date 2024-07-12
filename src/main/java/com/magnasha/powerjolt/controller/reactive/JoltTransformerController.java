@@ -56,7 +56,7 @@ public class JoltTransformerController {
     public Mono<ResponseEntity<String>> transformJson(@RequestBody TransformRequest request, @CurrentUser UserPrincipal userPrincipal) throws Exception {
         String transformedJson = transformService.transform(request.getInputJson(), request.getSpecJson());
         List<String> authorization = null;//serverHttpRequest.getHeaders().get("Authorization");
-        if (!authorization.isEmpty()) {
+        if (authorization!=null && !authorization.isEmpty()) {
             String username = "";
             TransformationHistory history = new TransformationHistory();
             history.setUserId(username);
