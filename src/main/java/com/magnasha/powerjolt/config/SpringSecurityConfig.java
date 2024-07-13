@@ -1,12 +1,16 @@
 package com.magnasha.powerjolt.config;
 
 
+import com.magnasha.powerjolt.filter.JwtAuthenticationFilter;
 import com.magnasha.powerjolt.service.JWTAuthenticationManager;
+import com.magnasha.powerjolt.service.UserService;
+import com.magnasha.powerjolt.utils.JwtUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableReactiveMethodSecurity;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
+import org.springframework.security.config.web.server.SecurityWebFiltersOrder;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.core.session.InMemoryReactiveSessionRegistry;
 import org.springframework.security.core.session.ReactiveSessionRegistry;
@@ -25,11 +29,14 @@ import java.util.List;
 @EnableReactiveMethodSecurity
 
 public class SpringSecurityConfig {
-
+    private final JwtUtil jwtUtil;
+    private final UserService userService;
 
     private final JWTAuthenticationManager jwtAuthenticationManager;
 
-    public SpringSecurityConfig(JWTAuthenticationManager jwtAuthenticationManager) {
+    public SpringSecurityConfig(JwtUtil jwtUtil, UserService userService, JWTAuthenticationManager jwtAuthenticationManager) {
+        this.jwtUtil = jwtUtil;
+        this.userService = userService;
         this.jwtAuthenticationManager = jwtAuthenticationManager;
     }
 
@@ -44,6 +51,7 @@ public class SpringSecurityConfig {
                         .maximumSessions(SessionLimit.UNLIMITED))
         );
         http.authenticationManager(jwtAuthenticationManager);
+        http .addFilterAt(new JwtAuthenticationFilter(jwtUtil, userService), SecurityWebFiltersOrder.AUTHENTICATION);
         http.csrf(csrf -> csrf.disable());
         return http.build();
     }

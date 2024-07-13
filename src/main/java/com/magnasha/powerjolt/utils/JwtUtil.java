@@ -19,12 +19,8 @@ public class JwtUtil {
 
     @Value("${jwt.expiration}")
     private int expirationInDays;
-    private Key key;
-
-    @PostConstruct
-    public void init() {
-        this.key = Keys.secretKeyFor(SignatureAlgorithm.HS256);
-    }
+    @Value("${jwt.secret}")
+    private String secret;
 
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
@@ -40,7 +36,7 @@ public class JwtUtil {
     }
 
     private Claims extractAllClaims(String token) {
-        return Jwts.parser().setSigningKey(key).build().parseClaimsJws(token).getBody();
+        return Jwts.parser().setSigningKey(secret).build().parseClaimsJws(token).getBody();
     }
 
     private Boolean isTokenExpired(String token) {
@@ -56,7 +52,12 @@ public class JwtUtil {
         long expirationInMillis = expirationInDays * 86400000L;
         return Jwts.builder().setClaims(claims).setSubject(subject).setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + expirationInMillis))
-                .signWith(key).compact();
+                .signWith(SignatureAlgorithm.HS512, secret)
+                .compact();
+    }
+
+    public Boolean validateToken(String token) {
+        return !isTokenExpired(token);
     }
 
     public Boolean validateToken(String token, String userName) {

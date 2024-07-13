@@ -15,6 +15,7 @@ import com.magnasha.powerjolt.service.UserService;
 import com.magnasha.powerjolt.utils.JwtUtil;
 import com.magnasha.powerjolt.wsdto.AuthResponse;
 import com.magnasha.powerjolt.wsdto.TokenRequest;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
@@ -29,7 +30,7 @@ import reactor.core.publisher.Mono;
 
 import java.util.Collections;
 
-
+@Slf4j
 @RestController
 @RequestMapping("/api")
 public class AuthenticationController {
@@ -59,11 +60,11 @@ public class AuthenticationController {
                     }
                 })
                 .flatMap(payload -> {
-                    String userName = payload.getSubject();
-
+                    String userName = payload.getEmail();
                     return userService.findOrCreateUser(payload)
                             .map(user -> {
                                 String jwtToken = jwtUtil.generateToken(userName);
+                                log.debug("jwtToken :: {} ",jwtToken);
                                 return ResponseEntity.ok(new AuthResponse(jwtToken, "Success"));
                             });
                 })

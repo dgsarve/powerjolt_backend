@@ -39,17 +39,5 @@ public class JWTAuthenticationManager implements ReactiveAuthenticationManager {
                 });
     }
 
-    public ServerAuthenticationConverter authenticationConverter() {
-        return new ServerAuthenticationConverter() {
-            @Override
-            public Mono<Authentication> convert(ServerWebExchange exchange) {
-                String token = exchange.getRequest().getHeaders().getFirst("Authorization");
-                if (token != null && token.startsWith("Bearer ")) {
-                    token = token.substring(7);
-                    return Mono.just(SecurityContextHolder.getContext().getAuthentication());
-                }
-                return Mono.empty();
-            }
-        };
-    }
+
 }
