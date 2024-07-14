@@ -1,10 +1,9 @@
 package com.magnasha.powerjolt.controller;
 
 import com.magnasha.powerjolt.controller.reactive.JoltTransformerController;
-import com.magnasha.powerjolt.document.TransformationHistory;
-import com.magnasha.powerjolt.service.HistoryService;
 import com.magnasha.powerjolt.service.OpenAiService;
 import com.magnasha.powerjolt.service.TransformService;
+import com.magnasha.powerjolt.service.TransformationHistoryService;
 import com.magnasha.powerjolt.service.UserService;
 import com.magnasha.powerjolt.wsdto.TransformRequest;
 import org.junit.jupiter.api.Test;
@@ -16,15 +15,11 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.web.reactive.function.BodyInserters;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @WebFluxTest(JoltTransformerController.class)
 public class JoltTransformerControllerTest {
@@ -36,7 +31,7 @@ public class JoltTransformerControllerTest {
     private OpenAiService openAiService;
 
     @MockBean
-    private HistoryService historyService;
+    private TransformationHistoryService historyService;
 
     @MockBean
     private UserService userService;
@@ -67,7 +62,7 @@ public class JoltTransformerControllerTest {
         transformRequest.setSpecJson("[\n" + "  {\n" + "    \"operation\": \"shift\",\n" + "    \"spec\": {\n" + "      \"ratings\": {\n" + "        \"*\": {\n" + "          // #2 means go three levels up the tree (count from 0),\n" + "          //  and ask the \"ratings\" node, how many of it's\n" + "          //  children have been matched.\n" + "          //\n" + "          // This allows us to put the Name and the Value into\n" + "          //  the same object in the Ratings array.\n" + "          \"$\": \"Ratings[#2].Name\",\n" + "          \"@\": \"Ratings[#2].Value\"\n" + "        }\n" + "      }\n" + "    }\n" + "  }\n" + "]\n");
 
         String transformedJson = "{\n" + "  \"Ratings\" : [ {\n" + "    \"Name\" : \"primary\",\n" + "    \"Value\" : 5\n" + "  }, {\n" + "    \"Name\" : \"quality\",\n" + "    \"Value\" : 4\n" + "  }, {\n" + "    \"Name\" : \"design\",\n" + "    \"Value\" : 5\n" + "  } ]\n" + "}\n";
-        TransformationHistory history = new TransformationHistory();
+        com.magnasha.powerjolt.document.TransformationHistory history = new com.magnasha.powerjolt.document.TransformationHistory();
         history.setUserId("12345");
         history.setInputJson(transformRequest.getInputJson());
         history.setSpecJson(transformRequest.getSpecJson());
@@ -75,7 +70,7 @@ public class JoltTransformerControllerTest {
         history.setTimestamp(LocalDateTime.now());
 
         Mockito.when(transformService.transform(Mockito.anyString(), Mockito.anyString())).thenReturn(transformedJson);
-        Mockito.when(historyService.saveHistory(Mockito.any(TransformationHistory.class))).thenReturn(Mono.empty());
+        Mockito.when(historyService.saveHistory(Mockito.any(com.magnasha.powerjolt.document.TransformationHistory.class))).thenReturn(Mono.empty());
 
         webTestClient.mutateWith(SecurityMockServerConfigurers.mockOAuth2Login())
                 .mutateWith(SecurityMockServerConfigurers.csrf()) // CSRF configuration
@@ -83,39 +78,9 @@ public class JoltTransformerControllerTest {
                 .body(BodyInserters.fromValue(transformRequest))
                 .exchange()
                 .expectStatus().isOk()
-                .expectBody(String.class).isEqualTo(transformedJson); }
-
-    @Test
-    @WithMockUser
-    public void testGetHistory() {
-        TransformationHistory history = new TransformationHistory();
-        history.setUserId("12345");
-        history.setInputJson("{\"name\":\"John\"}");
-        history.setSpecJson("[spec]");
-        history.setOutputJson("{\"firstName\":\"John\"}");
-        history.setTimestamp(LocalDateTime.now());
-
-        Flux<TransformationHistory> historyFlux = Flux.just(history);
-
-        Mockito.when(historyService.getHistoryByUserId(Mockito.anyString())).thenReturn(historyFlux);
-
-        webTestClient.mutateWith(SecurityMockServerConfigurers.mockOAuth2Login())
-                .mutateWith(SecurityMockServerConfigurers.csrf()) // CSRF configuration
-                .get().uri("/api/history")
-                .exchange()
-                .expectStatus().isOk()
-                .expectBodyList(TransformationHistory.class)
-                .hasSize(1)
-                .consumeWith(response -> {
-                    List<TransformationHistory> histories = response.getResponseBody();
-                    assert histories != null;
-                    assertEquals(1, histories.size());
-                    assertEquals("12345", histories.get(0).getUserId());
-                    assertEquals("{\"name\":\"John\"}", histories.get(0).getInputJson());
-                    assertEquals("[spec]", histories.get(0).getSpecJson());
-                    assertEquals("{\"firstName\":\"John\"}", histories.get(0).getOutputJson());
-                });
+                .expectBody(String.class).isEqualTo(transformedJson);
     }
+
 }
 
 

@@ -10,7 +10,7 @@ import java.util.List;
 @Service
 public class TransformService {
 
-    public String transform(String inputJson, String specJson) throws Exception {
+    public String transform(String inputJson, String specJson) {
         Object input = JsonUtils.jsonToObject(inputJson);
         List<Object> spec = JsonUtils.jsonToList(specJson);
         Chainr chainr = Chainr.fromSpec(spec);

@@ -99,6 +99,13 @@
             <artifactId>spring-security-test</artifactId>
             <scope>test</scope>
         </dependency>
+
+        <dependency>
+            <groupId>org.json</groupId>
+            <artifactId>json</artifactId>
+            <version>20240303</version>
+        </dependency>
+
         <!-- OpenAI API client -->
         <dependency>
             <groupId>com.azure</groupId>

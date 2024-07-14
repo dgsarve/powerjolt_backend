@@ -6,5 +6,6 @@ import reactor.core.publisher.Flux;
 
 public interface TransformationHistoryRepository extends R2dbcRepository<TransformationHistory, String> {
     Flux<TransformationHistory> findByUserId(String userId);
+    Flux<TransformationHistory> findByUserIdOrderByTimestampDesc(String userId);
 }
 

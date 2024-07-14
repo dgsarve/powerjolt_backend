@@ -5,10 +5,7 @@ import com.magnasha.powerjolt.utils.JwtUtil;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.server.authentication.ServerAuthenticationConverter;
 import org.springframework.stereotype.Component;
-import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 @Component

@@ -4,9 +4,10 @@ package com.magnasha.powerjolt.filter;
 import com.magnasha.powerjolt.service.UserService;
 import com.magnasha.powerjolt.utils.JwtUtil;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
@@ -32,8 +33,9 @@ public class JwtAuthenticationFilter implements WebFilter {
             String username = jwtUtil.extractUsername(token);
             return userService.findByUserName(username)
                     .flatMap(userDetails -> {
+                        List<GrantedAuthority> authorities = AuthorityUtils.createAuthorityList("USER");
                         UsernamePasswordAuthenticationToken authentication =
-                                new UsernamePasswordAuthenticationToken(userDetails, null, null);
+                                new UsernamePasswordAuthenticationToken(userDetails, null, authorities);
                         SecurityContext context = new SecurityContextImpl(authentication);
                         return chain.filter(exchange)
                                 .contextWrite(ReactiveSecurityContextHolder.withSecurityContext(Mono.just(context)));
