@@ -49,7 +49,7 @@ public class SpringSecurityConfig {
     SecurityWebFilterChain apiHttpSecurity(ServerHttpSecurity http) {
         http.csrf(csrf -> csrf.disable())
         .authorizeExchange(
-                authorizeRequests -> authorizeRequests.pathMatchers("/", "/home", "/api/login", "/api/auth/google", "/api/transform", "/api/history")
+                authorizeRequests -> authorizeRequests.pathMatchers("/", "/home", "/api/login", "/api/auth/google", "/api/transform", "/api/history","/api/templates")
                         .permitAll()
                         );
         http.authorizeExchange(authorizeRequests ->authorizeRequests.pathMatchers("/api/**").authenticated());

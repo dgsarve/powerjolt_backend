@@ -1,11 +1,13 @@
 package com.magnasha.powerjolt.controller.reactive;
 
 import com.magnasha.powerjolt.populator.TransformationHistoryPopulator;
+import com.magnasha.powerjolt.service.JoltTemplateService;
 import com.magnasha.powerjolt.service.OpenAiService;
 import com.magnasha.powerjolt.service.TransformService;
 import com.magnasha.powerjolt.service.TransformationHistoryService;
 import com.magnasha.powerjolt.service.UserService;
 import com.magnasha.powerjolt.utils.JwtUtil;
+import com.magnasha.powerjolt.wsdto.JoltTemplateResponse;
 import com.magnasha.powerjolt.wsdto.TransformRequest;
 import com.magnasha.powerjolt.wsdto.TransformationHistoryResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -32,6 +34,9 @@ public class JoltTransformerController {
 
     @Autowired
     private TransformationHistoryService historyService;
+
+    @Autowired
+    private JoltTemplateService joltTemplateService;
 
     @Autowired
     private UserService userService;
@@ -78,6 +83,13 @@ public class JoltTransformerController {
                         return Mono.just(ResponseEntity.ok(Flux.empty()));
                     }
                 });
+    }
+
+
+    @PreAuthorize("hasAuthority('USER')")
+    @GetMapping("/templates")
+    public Mono<ResponseEntity<Flux<JoltTemplateResponse>>> getAllTemplatesGroupedByCategory() {
+        return Mono.just(ResponseEntity.ok(joltTemplateService.getAllTemplatesGroupedByCategory()));
     }
 
 }

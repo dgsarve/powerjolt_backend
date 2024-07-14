@@ -61,4 +61,14 @@ public class JwtUtil {
         final String extractedUsername = extractUsername(token);
         return (extractedUsername.equals(userName) && !isTokenExpired(token));
     }
+
+
+    public String invalidateToken(String token) {
+        Claims claims = extractAllClaims(token);
+        claims.getExpiration().setTime(System.currentTimeMillis() - 100000);
+        return Jwts.builder()
+                .setClaims(claims)
+                .signWith(SignatureAlgorithm.HS512, secret)
+                .compact();
+    }
 }
