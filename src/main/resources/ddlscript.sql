@@ -4,9 +4,9 @@ create table if not exists JoltTemplate
     primary key,
     name         varchar(255)                        null,
     description  varchar(255)                        null,
-    inputjson    longtext                            null,
-    specjson     longtext                            null,
-    outputjson   longtext                            null,
+    input_json    longtext                            null,
+    spec_json     longtext                            null,
+    output_json   longtext                            null,
     tags         varchar(255)                        null,
     modifieddate timestamp default CURRENT_TIMESTAMP not null
     );
