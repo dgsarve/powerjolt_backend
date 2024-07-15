@@ -2,6 +2,8 @@ package com.magnasha.powerjolt.config;
 
 
 import com.magnasha.powerjolt.filter.JwtAuthenticationFilter;
+import com.magnasha.powerjolt.properties.CorsProperties;
+import com.magnasha.powerjolt.properties.JoltSecurityProperties;
 import com.magnasha.powerjolt.service.JWTAuthenticationManager;
 import com.magnasha.powerjolt.service.JoltAuthorizationManager;
 import com.magnasha.powerjolt.service.UserService;
@@ -22,8 +24,6 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.reactive.CorsWebFilter;
 import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource;
 
-import java.util.List;
-
 
 @Slf4j
 @Configuration
@@ -34,12 +34,17 @@ public class SpringSecurityConfig {
     private final JwtUtil jwtUtil;
     private final UserService userService;
 
+    private final JoltSecurityProperties joltSecurityProperties;
+    private final CorsProperties corsProperties;
+
     private final JWTAuthenticationManager jwtAuthenticationManager;
     private final JoltAuthorizationManager joltAuthorizationManager;
 
-    public SpringSecurityConfig(JwtUtil jwtUtil, UserService userService, JWTAuthenticationManager jwtAuthenticationManager, JoltAuthorizationManager joltAuthorizationManager) {
+    public SpringSecurityConfig(JwtUtil jwtUtil, UserService userService, JoltSecurityProperties joltSecurityProperties, CorsProperties corsProperties, JWTAuthenticationManager jwtAuthenticationManager, JoltAuthorizationManager joltAuthorizationManager) {
         this.jwtUtil = jwtUtil;
         this.userService = userService;
+        this.joltSecurityProperties = joltSecurityProperties;
+        this.corsProperties = corsProperties;
         this.jwtAuthenticationManager = jwtAuthenticationManager;
         this.joltAuthorizationManager = joltAuthorizationManager;
     }
@@ -47,16 +52,9 @@ public class SpringSecurityConfig {
 
     @Bean
     SecurityWebFilterChain apiHttpSecurity(ServerHttpSecurity http) {
-        http.csrf(csrf -> csrf.disable())
-        .authorizeExchange(
-                authorizeRequests -> authorizeRequests.pathMatchers("/", "/home", "/api/login", "/api/auth/google", "/api/transform", "/api/history","/api/templates")
-                        .permitAll()
-                        );
-        http.authorizeExchange(authorizeRequests ->authorizeRequests.pathMatchers("/api/**").authenticated());
-        http.sessionManagement((sessions) -> sessions
-                .concurrentSessions((concurrency) -> concurrency
-                        .maximumSessions(SessionLimit.UNLIMITED))
-        );
+        http.csrf(csrf -> csrf.disable()).authorizeExchange(authorizeRequests -> authorizeRequests.pathMatchers(joltSecurityProperties.getAllowedPaths().toArray(new String[0])).permitAll());
+        http.authorizeExchange(authorizeRequests -> authorizeRequests.pathMatchers("/api/**").authenticated());
+        http.sessionManagement((sessions) -> sessions.concurrentSessions((concurrency) -> concurrency.maximumSessions(SessionLimit.UNLIMITED)));
         http.securityContextRepository(NoOpServerSecurityContextRepository.getInstance());
         http.authenticationManager(jwtAuthenticationManager);
         http.addFilterAt(new JwtAuthenticationFilter(jwtUtil, userService), SecurityWebFiltersOrder.AUTHENTICATION);
@@ -75,13 +73,14 @@ public class SpringSecurityConfig {
     CorsWebFilter corsFilter() {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true);
-        config.setAllowedOrigins(List.of("http://localhost", "http://localhost:3000", "http://localhost:3001"));
+        config.setAllowedOrigins(corsProperties.getAllowedOrigins());
         config.addAllowedHeader("*");
-        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        config.setAllowedMethods(corsProperties.getAllowedMethods());
         log.debug("Allowed Origins: " + config.getAllowedOrigins());
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
         return new CorsWebFilter(source);
     }
+
 
 }

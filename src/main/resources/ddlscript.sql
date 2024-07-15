@@ -1,14 +1,15 @@
 create table if not exists JoltTemplate
 (
-    id           bigint auto_increment
+    id          bigint auto_increment
     primary key,
-    name         varchar(255)                        null,
-    description  varchar(255)                        null,
-    input_json    longtext                            null,
-    spec_json     longtext                            null,
-    output_json   longtext                            null,
-    tags         varchar(255)                        null,
-    modifieddate timestamp default CURRENT_TIMESTAMP not null
+    category    varchar(255)                        null,
+    name        varchar(255)                        null,
+    description varchar(255)                        null,
+    input_json  longtext                            null,
+    spec_json   longtext                            null,
+    output_json longtext                            null,
+    tags        varchar(255)                        null,
+    timestamp   timestamp default CURRENT_TIMESTAMP not null
     );
 
 create table if not exists TransformationHistory
