@@ -58,15 +58,17 @@ public class JoltTransformerController {
     @PostMapping("/transform")
     public Mono<ResponseEntity<String>> transformJson(@RequestBody TransformRequest request) {
         String transformedJson = transformService.transform(request.getInputJson(), request.getSpecJson());
-        userService.getCurrentUser()
-                .doOnSuccess(user -> {
+        return userService.getCurrentUser()
+                .flatMap(user -> {
                     if (user != null) {
                         String username = user.getEmail();
                         com.magnasha.powerjolt.document.TransformationHistory history = TransformationHistoryPopulator.populate(username, request, transformedJson);
-                        historyService.saveHistory(history);
+                        return historyService.saveHistory(history)
+                                .thenReturn(ResponseEntity.ok(transformedJson));
                     }
-                });
-        return Mono.just(ResponseEntity.ok(transformedJson));
+                    return Mono.just(ResponseEntity.ok(transformedJson));
+                })
+                .switchIfEmpty(Mono.just(ResponseEntity.ok(transformedJson)));
     }
 
     @PreAuthorize("hasAuthority('USER')")
@@ -83,8 +85,6 @@ public class JoltTransformerController {
                 });
     }
 
-
-    @PreAuthorize("hasAuthority('USER')")
     @GetMapping("/templates")
     public Mono<ResponseEntity<Flux<JoltTemplateResponse>>> getAllTemplatesGroupedByCategory() {
         return Mono.just(ResponseEntity.ok(joltTemplateService.getAllTemplatesGroupedByCategory()));

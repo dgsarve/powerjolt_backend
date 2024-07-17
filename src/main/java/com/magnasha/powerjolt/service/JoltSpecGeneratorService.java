@@ -70,15 +70,4 @@ public class JoltSpecGeneratorService {
         }
     }
 
-    // Example usage in main method or controller
-    public static void main(String[] args) {
-        String inputJsonString = "{ \"Rating\": 1, \"SecondaryRatings\": { \"Design\": 4, \"Price\": 2, \"RatingDimension3\": 1 } }";
-        String outputJsonString = "{ \"rating-primary\": 1, \"rating-Design\": 4, \"rating-Price\": 2, \"rating-RatingDimension3\": 1 }";
-
-        JoltSpecGeneratorService service = new JoltSpecGeneratorService();
-        String generatedSpec = service.generateJoltSpec(inputJsonString, outputJsonString);
-
-        System.out.println("Generated Jolt Spec:");
-        System.out.println(generatedSpec);
-    }
 }

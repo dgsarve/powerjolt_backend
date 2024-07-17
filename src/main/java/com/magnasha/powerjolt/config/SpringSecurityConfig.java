@@ -19,7 +19,7 @@ import org.springframework.security.core.session.InMemoryReactiveSessionRegistry
 import org.springframework.security.core.session.ReactiveSessionRegistry;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.authentication.SessionLimit;
-import org.springframework.security.web.server.context.NoOpServerSecurityContextRepository;
+import org.springframework.security.web.server.context.WebSessionServerSecurityContextRepository;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.reactive.CorsWebFilter;
 import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource;
@@ -52,10 +52,15 @@ public class SpringSecurityConfig {
 
     @Bean
     SecurityWebFilterChain apiHttpSecurity(ServerHttpSecurity http) {
+
         http.csrf(csrf -> csrf.disable()).authorizeExchange(authorizeRequests -> authorizeRequests.pathMatchers(joltSecurityProperties.getAllowedPaths().toArray(new String[0])).permitAll());
         http.authorizeExchange(authorizeRequests -> authorizeRequests.pathMatchers("/api/**").authenticated());
-        http.sessionManagement((sessions) -> sessions.concurrentSessions((concurrency) -> concurrency.maximumSessions(SessionLimit.UNLIMITED)));
-        http.securityContextRepository(NoOpServerSecurityContextRepository.getInstance());
+        http.sessionManagement((sessions) -> sessions
+                .concurrentSessions((concurrency) -> concurrency
+                        .maximumSessions(SessionLimit.UNLIMITED))
+        );
+
+        http.securityContextRepository(new WebSessionServerSecurityContextRepository());
         http.authenticationManager(jwtAuthenticationManager);
         http.addFilterAt(new JwtAuthenticationFilter(jwtUtil, userService), SecurityWebFiltersOrder.AUTHENTICATION);
 
