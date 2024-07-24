@@ -1,7 +1,9 @@
 package com.magnasha.powerjolt.service;
 
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
+import com.magnasha.powerjolt.document.ContactForm;
 import com.magnasha.powerjolt.document.User;
+import com.magnasha.powerjolt.repository.ContactFormRepository;
 import com.magnasha.powerjolt.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -14,6 +16,9 @@ public class UserService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private ContactFormRepository contactFormRepository;
 
     public Mono<User> findOrCreateUser(GoogleIdToken.Payload payload) {
         User user = new User();
@@ -47,6 +52,10 @@ public class UserService {
                     }
                     return null;
                 });
+    }
+
+    public Mono<ContactForm> saveContactForm(ContactForm contactForm) {
+        return contactFormRepository.save(contactForm);
     }
 }
 
